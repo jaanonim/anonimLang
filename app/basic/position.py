@@ -6,7 +6,7 @@ class Position:
         self.fn = fn
         self.ftxt = ftxt
 
-    def advance(self, char):
+    def advance(self, char=None):
         self.id += 1
         self.col += 1
         if char == "\n":

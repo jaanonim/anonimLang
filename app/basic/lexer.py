@@ -24,28 +24,36 @@ class Lexer:
             elif self.char in Token.DIGITS:
                 tokens.append(self.make_number())
             elif self.char == "+":
-                tokens.append(Token(TokenType.PLUS))
+                tokens.append(Token(TokenType.PLUS, pos_start=self.pos))
+                self.advance()
             elif self.char == "-":
-                tokens.append(Token(TokenType.MINUS))
+                tokens.append(Token(TokenType.MINUS, pos_start=self.pos))
+                self.advance()
             elif self.char == "*":
-                tokens.append(Token(TokenType.MUL))
+                tokens.append(Token(TokenType.MUL, pos_start=self.pos))
+                self.advance()
             elif self.char == "/":
-                tokens.append(Token(TokenType.DIV))
+                tokens.append(Token(TokenType.DIV, pos_start=self.pos))
+                self.advance()
             elif self.char == "(":
-                tokens.append(Token(TokenType.LPAREN))
+                tokens.append(Token(TokenType.LPAREN, pos_start=self.pos))
+                self.advance()
             elif self.char == ")":
-                tokens.append(Token(TokenType.RPAREN))
+                tokens.append(Token(TokenType.RPAREN, pos_start=self.pos))
+                self.advance()
             else:
                 pos_start = self.pos.copy()
                 char = self.char
                 self.advance()
                 return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
 
+        tokens.append(Token(TokenType.EOF, pos_start=self.pos))
         return tokens, None
 
     def make_number(self):
         num_str = ""
         dot_count = 0
+        pos_start = self.pos.copy()
 
         while self.char != None and self.char in Token.DIGITS + ".":
             if self.char == ".":
@@ -58,13 +66,6 @@ class Lexer:
             self.advance()
 
         if dot_count == 0:
-            return Token(TokenType.INT, int(num_str))
+            return Token(TokenType.INT, int(num_str), pos_start, self.pos.copy())
         else:
-            return Token(TokenType.FLOAT, float(num_str))
-
-
-def run(fn, text):
-    l = Lexer(fn, text)
-    t, error = l.make_tokens()
-
-    return t, error
+            return Token(TokenType.FLOAT, float(num_str), pos_start, self.pos.copy())
