@@ -27,17 +27,13 @@ class Parser:
             )
         return res
 
-    def factor(self):
+    def atom(self):
         res = ParserResult()
         t = self.current_token
 
-        if t.type in (TokenType.PLUS, TokenType.MINUS):
+        if t.type in (TokenType.INT, TokenType.FLOAT):
             res.register(self.advance())
-            factor = res.register(self.factor())
-            if res.error:
-                return res
-            return res.success(UnaryOpNode(t, factor))
-
+            return res.success(NumberNode(t))
         elif t.type == TokenType.LPAREN:
             res.register(self.advance())
             expr = res.register(self.expr())
@@ -55,12 +51,29 @@ class Parser:
                     )
                 )
 
-        if t.type in (TokenType.INT, TokenType.FLOAT):
-            res.register(self.advance())
-            return res.success(NumberNode(t))
         return res.failure(
-            InvalidSyntaxError(t.pos_start, t.pos_end, "Excepted number")
+            InvalidSyntaxError(
+                t.pos_start,
+                t.pos_end,
+                "Excepted number or '+', '-', '('",
+            )
         )
+
+    def power(self):
+        return self.bin_op(self.atom, (TokenType.POW,), self.factor)
+
+    def factor(self):
+        res = ParserResult()
+        t = self.current_token
+
+        if t.type in (TokenType.PLUS, TokenType.MINUS):
+            res.register(self.advance())
+            factor = res.register(self.factor())
+            if res.error:
+                return res
+            return res.success(UnaryOpNode(t, factor))
+
+        return self.power()
 
     def term(self):
         return self.bin_op(self.factor, (TokenType.MUL, TokenType.DIV))
@@ -68,16 +81,19 @@ class Parser:
     def expr(self):
         return self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS))
 
-    def bin_op(self, func, ops):
+    def bin_op(self, func_a, ops, func_b=None):
+        if func_b == None:
+            func_b = func_a
+
         res = ParserResult()
-        left = res.register(func())
+        left = res.register(func_a())
         if res.error:
             return res
 
         while self.current_token.type in ops:
             op = self.current_token
             res.register(self.advance())
-            rigth = res.register(func())
+            rigth = res.register(func_b())
             if res.error:
                 return res
             left = BinOpNode(op, left, rigth)

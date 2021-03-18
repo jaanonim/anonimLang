@@ -11,6 +11,7 @@ class TokenType(Enum):
     LPAREN = 7
     RPAREN = 8
     EOF = 9
+    POW = 10
 
 
 class Token:

@@ -38,3 +38,7 @@ class Number:
                     other.pos_start, other.pos_end, "Cannot divide by 0", self.context
                 )
             return Number(self.value / other.value).set_context(self.context), None
+
+    def powed_to(self, other):
+        if isinstance(other, Number):
+            return Number(self.value ** other.value).set_context(self.context), None

@@ -36,6 +36,8 @@ class Interpreter:
             r, e = left.multed_by(rigth)
         elif node.token.type == TokenType.DIV:
             r, e = left.divided_by(rigth)
+        elif node.token.type == TokenType.POW:
+            r, e = left.powed_to(rigth)
 
         if e:
             return res.failure(e)
