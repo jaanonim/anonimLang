@@ -2,6 +2,9 @@ from basic.context import Context
 from basic.interpreter import Interpreter
 from basic.lexer import Lexer
 from basic.parser import Parser
+from basic.symbols import SymbolTable
+
+global_symbol_table = SymbolTable()
 
 
 def run(fn, text):
@@ -17,6 +20,7 @@ def run(fn, text):
 
     i = Interpreter()
     c = Context("<program>")
+    c.symbol_table = global_symbol_table
     res = i.visit(ast.node, c)
 
     return res.value, res.error

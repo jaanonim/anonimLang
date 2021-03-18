@@ -1,5 +1,6 @@
 from .error import InvalidSyntaxError
-from .nodes import BinOpNode, NumberNode, UnaryOpNode
+from .nodes import (BinOpNode, NumberNode, UnaryOpNode, VarAccessNode,
+                    VarAssignNode)
 from .token import TokenType
 
 
@@ -22,7 +23,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    "Excepted '+', '-', '*', '/'",
+                    "Excepted '+', '-', '*', '/', '^'",
                 )
             )
         return res
@@ -32,15 +33,22 @@ class Parser:
         t = self.current_token
 
         if t.type in (TokenType.INT, TokenType.FLOAT):
-            res.register(self.advance())
+            res.register_advance()
+            self.advance()
             return res.success(NumberNode(t))
+        elif t.type == TokenType.IDENTIFIRER:
+            res.register_advance()
+            self.advance()
+            return res.success(VarAccessNode(t))
         elif t.type == TokenType.LPAREN:
-            res.register(self.advance())
+            res.register_advance()
+            self.advance()
             expr = res.register(self.expr())
             if res.error:
                 return res
             if self.current_token.type == TokenType.RPAREN:
-                res.register(self.advance())
+                res.register_advance()
+                self.advance()
                 return res.success(expr)
             else:
                 return res.failure(
@@ -55,7 +63,7 @@ class Parser:
             InvalidSyntaxError(
                 t.pos_start,
                 t.pos_end,
-                "Excepted number or '+', '-', '('",
+                "Excepted number, variable, '+', '-', '('",
             )
         )
 
@@ -67,7 +75,8 @@ class Parser:
         t = self.current_token
 
         if t.type in (TokenType.PLUS, TokenType.MINUS):
-            res.register(self.advance())
+            res.register_advance()
+            self.advance()
             factor = res.register(self.factor())
             if res.error:
                 return res
@@ -79,7 +88,50 @@ class Parser:
         return self.bin_op(self.factor, (TokenType.MUL, TokenType.DIV))
 
     def expr(self):
-        return self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS))
+        res = ParserResult()
+
+        if self.current_token.maches(TokenType.KEYWORD, "var"):
+            res.register_advance()
+            self.advance()
+
+            if self.current_token.type != TokenType.IDENTIFIRER:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                        self.current_tok.pos_end,
+                        "Expected identifier",
+                    )
+                )
+
+            var_name = self.current_token
+            res.register_advance()
+            self.advance()
+            t = self.current_token
+            if t.type != TokenType.EQ:
+                return res.failure(
+                    InvalidSyntaxError(
+                        t.pos_start,
+                        t.pos_end,
+                        "Excepted '='",
+                    )
+                )
+            res.register_advance()
+            self.advance()
+            exp = res.register(self.expr())
+            if res.error:
+                return res
+            return res.success(VarAssignNode(var_name, exp))
+
+        node = res.register(self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS)))
+        if res.error:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    "Excepted number, variable, variable declaration '+', '-', '('",
+                )
+            )
+        return res.success(node)
 
     def bin_op(self, func_a, ops, func_b=None):
         if func_b == None:
@@ -92,7 +144,8 @@ class Parser:
 
         while self.current_token.type in ops:
             op = self.current_token
-            res.register(self.advance())
+            res.register_advance()
+            self.advance()
             rigth = res.register(func_b())
             if res.error:
                 return res
@@ -105,18 +158,22 @@ class ParserResult:
     def __init__(self):
         self.error = None
         self.node = None
+        self.adv_count = 0
 
     def register(self, res):
-        if isinstance(res, ParserResult):
-            if res.error:
-                self.error = res.error
-            return res.node
-        return res
+        self.adv_count += res.adv_count
+        if res.error:
+            self.error = res.error
+        return res.node
+
+    def register_advance(self):
+        self.adv_count += 1
 
     def success(self, node):
         self.node = node
         return self
 
     def failure(self, error):
-        self.error = error
+        if not self.error or self.adv_count == 0:
+            self.error = error
         return self

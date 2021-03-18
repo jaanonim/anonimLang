@@ -1,3 +1,4 @@
+from .error import RunTimeError
 from .number import Number
 from .runtime import RuntimeResult
 from .token import TokenType
@@ -18,6 +19,33 @@ class Interpreter:
             .set_context(context)
             .set_pos(node.pos_start, node.pos_end)
         )
+
+    def visit_VarAccessNode(self, node, context):
+        res = RuntimeResult()
+        var_name = node.token.value
+        value = context.symbol_table.get(var_name)
+
+        if not value:
+            return res.failure(
+                RunTimeError(
+                    node.pos_start,
+                    node.pos_end,
+                    f"'{var_name}' is not defined",
+                    context,
+                )
+            )
+
+        value = value.copy().set_pos(node.pos_start, node.pos_end)
+        return res.success(value)
+
+    def visit_VarAssignNode(self, node, context):
+        res = RuntimeResult()
+        var_name = node.token.value
+        value = res.register(self.visit(node.value, context))
+        if res.error:
+            return res
+        context.symbol_table.set(var_name, value)
+        return res.success(value)
 
     def visit_BinOpNode(self, node, context):
         res = RuntimeResult()

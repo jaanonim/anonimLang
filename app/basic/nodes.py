@@ -32,3 +32,20 @@ class UnaryOpNode:
 
     def __repr__(self):
         return f"({self.token}, {self.node})"
+
+
+class VarAccessNode:
+    def __init__(self, token):
+        self.token = token
+
+        self.pos_start = self.token.pos_start
+        self.pos_end = self.token.pos_end
+
+
+class VarAssignNode:
+    def __init__(self, token, value):
+        self.token = token
+        self.value = value
+
+        self.pos_start = self.token.pos_start
+        self.pos_end = self.value.pos_end

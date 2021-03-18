@@ -1,3 +1,4 @@
+import string
 from enum import Enum
 
 
@@ -12,10 +13,16 @@ class TokenType(Enum):
     RPAREN = 8
     EOF = 9
     POW = 10
+    IDENTIFIRER = 11
+    KEYWORD = 12
+    EQ = 13
 
 
 class Token:
     DIGITS = "0123456789"
+    LETTERS = string.ascii_letters
+    LETTERS_DIGITS = LETTERS + DIGITS
+    KEYWORDS = ["var"]
 
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
         self.type = type_
@@ -31,3 +38,6 @@ class Token:
         if self.value:
             return f"{self.type.name}:{self.value}"
         return f"{self.type.name}"
+
+    def maches(self, type_, value):
+        return self.type == type_ and self.value == value
