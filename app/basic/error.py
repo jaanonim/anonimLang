@@ -25,3 +25,28 @@ class IllegalCharError(Error):
 class InvalidSyntaxError(Error):
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, "Invalid Syntax Error", details)
+
+
+class RunTimeError(Error):
+    def __init__(self, pos_start, pos_end, details, context):
+        super().__init__(pos_start, pos_end, "Run Time Error", details)
+        self.context = context
+
+    def as_str(self):
+        r = self.generate_trace()
+        r += f"{self.error_name}: {self.details}\n"
+        r += "\n" + string_with_arrows(
+            self.pos_start.ftxt, self.pos_start, self.pos_end
+        )
+        return r
+
+    def generate_trace(self):
+        r = ""
+        pos = self.pos_start
+        con = self.context
+
+        while con:
+            r = f"In {pos.fn} in {con.display_name}, at line {pos.ln + 1}, char: {pos.col + 1}\n"
+            pos = con.parent_entry_pos
+            con = con.parent
+        return "Traceback:\n" + r

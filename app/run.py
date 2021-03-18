@@ -1,3 +1,5 @@
+from basic.context import Context
+from basic.interpreter import Interpreter
 from basic.lexer import Lexer
 from basic.parser import Parser
 
@@ -10,5 +12,11 @@ def run(fn, text):
 
     p = Parser(t)
     ast = p.parse()
+    if ast.error:
+        return None, ast.error
 
-    return ast.node, ast.error
+    i = Interpreter()
+    c = Context("<program>")
+    res = i.visit(ast.node, c)
+
+    return res.value, res.error

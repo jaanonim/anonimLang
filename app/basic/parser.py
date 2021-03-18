@@ -87,7 +87,6 @@ class Parser:
 
 class ParserResult:
     def __init__(self):
-        super().__init__()
         self.error = None
         self.node = None
 
