@@ -1,4 +1,4 @@
-from .error import IllegalCharError
+from .error import ExceptedCharError, IllegalCharError
 from .position import Position
 from .token import Token, TokenType
 
@@ -40,15 +40,28 @@ class Lexer:
             elif self.char == "^":
                 tokens.append(Token(TokenType.POW, pos_start=self.pos))
                 self.advance()
-            elif self.char == "=":
-                tokens.append(Token(TokenType.EQ, pos_start=self.pos))
-                self.advance()
             elif self.char == "(":
                 tokens.append(Token(TokenType.LPAREN, pos_start=self.pos))
                 self.advance()
             elif self.char == ")":
                 tokens.append(Token(TokenType.RPAREN, pos_start=self.pos))
                 self.advance()
+            elif self.char == "!":
+                t, e = self.make_not_equals()
+                if e:
+                    return [], e
+                tokens.append(t)
+                self.advance()
+            elif self.char == "=":
+                tokens.append(self.make_equals())
+                self.advance()
+            elif self.char == ">":
+                tokens.append(self.make_greader())
+                self.advance()
+            elif self.char == "<":
+                tokens.append(self.make_less())
+                self.advance()
+
             else:
                 pos_start = self.pos.copy()
                 char = self.char
@@ -90,3 +103,36 @@ class Lexer:
             TokenType.KEYWORD if id_str in Token.KEYWORDS else TokenType.IDENTIFIRER
         )
         return Token(tok_type, id_str, pos_start, self.pos)
+
+    def make_not_equals(self):
+        pos_start = self.pos.copy()
+        self.advance()
+        if self.char == "=":
+            self.advance()
+            return Token(TokenType.NE, pos_start=pos_start, pos_end=self.pos), None
+
+        return None, ExceptedCharError(pos_start, self.pos, "'=' after '!'")
+
+    def make_equals(self):
+        type_ = TokenType.EQ
+        pos_start = self.pos.copy()
+        self.advance()
+        if self.char == "=":
+            type_ = TokenType.EE
+        return Token(type_, pos_start=pos_start, pos_end=self.pos)
+
+    def make_less(self):
+        type_ = TokenType.LT
+        pos_start = self.pos.copy()
+        self.advance()
+        if self.char == "=":
+            type_ = TokenType.LTE
+        return Token(type_, pos_start=pos_start, pos_end=self.pos)
+
+    def make_greader(self):
+        type_ = TokenType.GT
+        pos_start = self.pos.copy()
+        self.advance()
+        if self.char == "=":
+            type_ = TokenType.GTE
+        return Token(type_, pos_start=pos_start, pos_end=self.pos)

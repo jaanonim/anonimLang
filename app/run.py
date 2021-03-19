@@ -5,13 +5,16 @@ from basic.parser import Parser
 from basic.symbols import SymbolTable
 
 global_symbol_table = SymbolTable()
-
+debug = True
 
 def run(fn, text):
     l = Lexer(fn, text)
     t, e = l.make_tokens()
     if e:
         return None, e
+
+    if debug:
+        print(f"DEBUG: {t}")
 
     p = Parser(t)
     ast = p.parse()

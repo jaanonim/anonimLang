@@ -1,6 +1,5 @@
 from .error import InvalidSyntaxError
-from .nodes import (BinOpNode, NumberNode, UnaryOpNode, VarAccessNode,
-                    VarAssignNode)
+from .nodes import BinOpNode, NumberNode, UnaryOpNode, VarAccessNode, VarAssignNode
 from .token import TokenType
 
 
@@ -87,6 +86,45 @@ class Parser:
     def term(self):
         return self.bin_op(self.factor, (TokenType.MUL, TokenType.DIV))
 
+    def arith_exp(self):
+        return self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS))
+
+    def comp_expr(self):
+        res = ParserResult()
+        if self.current_token.maches(TokenType.KEYWORD, "not"):
+            op_tok = self.current_token
+            res.register_advance()
+            self.advance()
+
+            node = res.register(self.comp_expr())
+            if res.error:
+                return res
+            return res.success(UnaryOpNode(op_tok, node))
+
+        node = res.register(
+            self.bin_op(
+                self.arith_exp,
+                (
+                    TokenType.EE,
+                    TokenType.NE,
+                    TokenType.LTE,
+                    TokenType.LT,
+                    TokenType.GT,
+                    TokenType.GTE,
+                ),
+            )
+        )
+
+        if res.error:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    "Excepted number, variable, '+', '-', '('",
+                )
+            )
+        return res.success(node)
+
     def expr(self):
         res = ParserResult()
 
@@ -122,13 +160,17 @@ class Parser:
                 return res
             return res.success(VarAssignNode(var_name, exp))
 
-        node = res.register(self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS)))
+        node = res.register(
+            self.bin_op(
+                self.comp_expr, ((TokenType.KEYWORD, "and"), (TokenType.KEYWORD, "or"))
+            )
+        )
         if res.error:
             return res.failure(
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    "Excepted number, variable, variable declaration '+', '-', '('",
+                    "Excepted number, variable, variable declaration '+', '-', '(', 'not'",
                 )
             )
         return res.success(node)
@@ -142,7 +184,10 @@ class Parser:
         if res.error:
             return res
 
-        while self.current_token.type in ops:
+        while (
+            self.current_token.type in ops
+            or (self.current_token.type, self.current_token.value) in ops
+        ):
             op = self.current_token
             res.register_advance()
             self.advance()

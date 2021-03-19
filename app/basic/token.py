@@ -16,13 +16,19 @@ class TokenType(Enum):
     IDENTIFIRER = 11
     KEYWORD = 12
     EQ = 13
+    EE = 14
+    NE = 15
+    LT = 15
+    GT = 17
+    GTE = 18
+    LTE = 19
 
 
 class Token:
     DIGITS = "0123456789"
     LETTERS = string.ascii_letters
     LETTERS_DIGITS = LETTERS + DIGITS
-    KEYWORDS = ["var"]
+    KEYWORDS = ["var", "and", "or", "not"]
 
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
         self.type = type_

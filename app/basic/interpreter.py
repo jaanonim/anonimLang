@@ -66,6 +66,22 @@ class Interpreter:
             r, e = left.divided_by(rigth)
         elif node.token.type == TokenType.POW:
             r, e = left.powed_to(rigth)
+        elif node.token.type == TokenType.EE:
+            r, e = left.get_comparison_eq(rigth)
+        elif node.token.type == TokenType.NE:
+            r, e = left.get_comparison_ne(rigth)
+        elif node.token.type == TokenType.LT:
+            r, e = left.get_comparison_lt(rigth)
+        elif node.token.type == TokenType.GT:
+            r, e = left.get_comparison_gt(rigth)
+        elif node.token.type == TokenType.LTE:
+            r, e = left.get_comparison_lte(rigth)
+        elif node.token.type == TokenType.GTE:
+            r, e = left.get_comparison_gte(rigth)
+        elif node.token.matches(TokenType.KEYWORD, "and"):
+            r, e = left.anded_by(rigth)
+        elif node.token.matches(TokenType.KEYWORD, "or"):
+            r, e = left.ored_by(rigth)
 
         if e:
             return res.failure(e)
@@ -79,6 +95,8 @@ class Interpreter:
             return res
         if node.token.type == TokenType.MINUS:
             num, e = num.multed_by(Number(-1))
+        elif node.token.matches(TokenType.KEYWORD, "not"):
+            num, e = num.notted()
 
         if e:
             return res.failure(e)
