@@ -28,7 +28,16 @@ class Token:
     DIGITS = "0123456789"
     LETTERS = string.ascii_letters
     LETTERS_DIGITS = LETTERS + DIGITS
-    KEYWORDS = ["var", "and", "or", "not"]
+    KEYWORDS = [
+        "var", 
+        "and", 
+        "or", 
+        "not",
+        "if",
+        'else',
+        'then',
+        'elif'
+        ]
 
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
         self.type = type_

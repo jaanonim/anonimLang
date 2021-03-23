@@ -1,5 +1,6 @@
 from .error import InvalidSyntaxError
-from .nodes import BinOpNode, NumberNode, UnaryOpNode, VarAccessNode, VarAssignNode
+from .nodes import (BinOpNode, IfNode, NumberNode, UnaryOpNode, VarAccessNode,
+                    VarAssignNode)
 from .token import TokenType
 
 
@@ -26,6 +27,79 @@ class Parser:
                 )
             )
         return res
+
+    def if_expr(self):
+        res = ParserResult()
+        cases = []
+        else_case = None
+
+        if not self.current_token.maches(TokenType.KEYWORD, "if"):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'if'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        condition = res.register(self.expr())
+        if res.error:
+            return res
+
+        if not self.current_token.maches(TokenType.KEYWORD, "then"):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'then'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        expr = res.register(self.expr())
+        if res.error:
+            return res
+        cases.append((condition, expr))
+
+        while self.current_token.maches(TokenType.KEYWORD, "elif"):
+            res.register_advance()
+            self.advance()
+
+            condition = res.register(self.expr())
+            if res.error:
+                return res
+
+            if not self.current_token.maches(TokenType.KEYWORD, "then"):
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Expected 'then'",
+                    )
+                )
+
+            res.register_advance()
+            self.advance()
+
+            expr = res.register(self.expr())
+            if res.error:
+                return res
+            cases.append((condition, expr))
+
+        if self.current_token.maches(TokenType.KEYWORD, "else"):
+            res.register_advance()
+            self.advance()
+
+            else_case = res.register(self.expr())
+            if res.error:
+                return res
+
+        return res.success(IfNode(cases, else_case))
 
     def atom(self):
         res = ParserResult()
@@ -57,6 +131,11 @@ class Parser:
                         "Expected ')'",
                     )
                 )
+        elif t.maches(TokenType.KEYWORD, "if"):
+            if_exp = res.register(self.if_expr())
+            if res.error:
+                return res
+            return res.success(if_exp)
 
         return res.failure(
             InvalidSyntaxError(

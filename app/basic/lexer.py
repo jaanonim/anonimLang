@@ -108,7 +108,6 @@ class Lexer:
         pos_start = self.pos.copy()
         self.advance()
         if self.char == "=":
-            self.advance()
             return Token(TokenType.NE, pos_start=pos_start, pos_end=self.pos), None
 
         return None, ExceptedCharError(pos_start, self.pos, "'=' after '!'")
