@@ -1,7 +1,13 @@
 from .error import InvalidSyntaxError
-from .nodes import (BinOpNode, IfNode, NumberNode, UnaryOpNode, VarAccessNode,
-                    VarAssignNode)
-from .token import TokenType
+from .nodes import (
+    BinOpNode,
+    IfNode,
+    NumberNode,
+    UnaryOpNode,
+    VarAccessNode,
+    VarAssignNode,
+)
+from .token import TokenKeywords, TokenType
 
 
 class Parser:
@@ -33,7 +39,7 @@ class Parser:
         cases = []
         else_case = None
 
-        if not self.current_token.maches(TokenType.KEYWORD, "if"):
+        if not self.current_token.isKeword(TokenKeywords._if):
             return res.failure(
                 InvalidSyntaxError(
                     self.current_token.pos_start,
@@ -49,7 +55,7 @@ class Parser:
         if res.error:
             return res
 
-        if not self.current_token.maches(TokenType.KEYWORD, "then"):
+        if not self.current_token.isKeword(TokenKeywords._then):
             return res.failure(
                 InvalidSyntaxError(
                     self.current_token.pos_start,
@@ -66,7 +72,7 @@ class Parser:
             return res
         cases.append((condition, expr))
 
-        while self.current_token.maches(TokenType.KEYWORD, "elif"):
+        while self.current_token.isKeword(TokenKeywords._elif):
             res.register_advance()
             self.advance()
 
@@ -74,7 +80,7 @@ class Parser:
             if res.error:
                 return res
 
-            if not self.current_token.maches(TokenType.KEYWORD, "then"):
+            if not self.current_token.isKeword(TokenKeywords._then):
                 return res.failure(
                     InvalidSyntaxError(
                         self.current_token.pos_start,
@@ -91,7 +97,7 @@ class Parser:
                 return res
             cases.append((condition, expr))
 
-        if self.current_token.maches(TokenType.KEYWORD, "else"):
+        if self.current_token.isKeword(TokenKeywords._else):
             res.register_advance()
             self.advance()
 
@@ -131,7 +137,7 @@ class Parser:
                         "Expected ')'",
                     )
                 )
-        elif t.maches(TokenType.KEYWORD, "if"):
+        elif t.isKeword(TokenKeywords._if):
             if_exp = res.register(self.if_expr())
             if res.error:
                 return res
@@ -170,7 +176,7 @@ class Parser:
 
     def comp_expr(self):
         res = ParserResult()
-        if self.current_token.maches(TokenType.KEYWORD, "not"):
+        if self.current_token.isKeword(TokenKeywords._not):
             op_tok = self.current_token
             res.register_advance()
             self.advance()
@@ -207,7 +213,7 @@ class Parser:
     def expr(self):
         res = ParserResult()
 
-        if self.current_token.maches(TokenType.KEYWORD, "var"):
+        if self.current_token.isKeword(TokenKeywords._var):
             res.register_advance()
             self.advance()
 
@@ -241,7 +247,11 @@ class Parser:
 
         node = res.register(
             self.bin_op(
-                self.comp_expr, ((TokenType.KEYWORD, "and"), (TokenType.KEYWORD, "or"))
+                self.comp_expr,
+                (
+                    (TokenType.KEYWORD, TokenKeywords._and),
+                    (TokenType.KEYWORD, TokenKeywords._or),
+                ),
             )
         )
         if res.error:

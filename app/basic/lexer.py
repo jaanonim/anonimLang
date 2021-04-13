@@ -1,6 +1,6 @@
 from .error import ExceptedCharError, IllegalCharError
 from .position import Position
-from .token import Token, TokenType
+from .token import Token, TokenKeywords, TokenType
 
 
 class Lexer:
@@ -100,7 +100,9 @@ class Lexer:
             self.advance()
 
         tok_type = (
-            TokenType.KEYWORD if id_str in Token.KEYWORDS else TokenType.IDENTIFIRER
+            TokenType.KEYWORD
+            if id_str in [e.value for e in TokenKeywords]
+            else TokenType.IDENTIFIRER
         )
         return Token(tok_type, id_str, pos_start, self.pos)
 

@@ -24,20 +24,21 @@ class TokenType(Enum):
     LTE = 19
 
 
+class TokenKeywords(Enum):
+    _var = "zmienna"
+    _and = "i"
+    _or = "lub"
+    _not = "nie"
+    _if = "jezeli"
+    _else = "inaczej"
+    _then = "wtedy"
+    _elif = "inaczej_jesli"
+
+
 class Token:
     DIGITS = "0123456789"
     LETTERS = string.ascii_letters
     LETTERS_DIGITS = LETTERS + DIGITS
-    KEYWORDS = [
-        "var", 
-        "and", 
-        "or", 
-        "not",
-        "if",
-        'else',
-        'then',
-        'elif'
-        ]
 
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
         self.type = type_
@@ -56,3 +57,6 @@ class Token:
 
     def maches(self, type_, value):
         return self.type == type_ and self.value == value
+
+    def isKeword(self, keyword):
+        return self.type == TokenType.KEYWORD and self.value == keyword.value
