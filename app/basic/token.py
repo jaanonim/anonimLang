@@ -26,13 +26,17 @@ class TokenType(Enum):
 
 class TokenKeywords(Enum):
     _var = "zmienna"
-    _and = "i"
+    _and = "and"
     _or = "lub"
     _not = "nie"
     _if = "jezeli"
     _else = "inaczej"
     _then = "wtedy"
     _elif = "inaczej_jesli"
+    _for = "for"
+    _to = "to"
+    _step = "step"
+    _while = "while"
 
 
 class Token:

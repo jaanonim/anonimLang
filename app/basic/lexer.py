@@ -54,13 +54,10 @@ class Lexer:
                 self.advance()
             elif self.char == "=":
                 tokens.append(self.make_equals())
-                self.advance()
             elif self.char == ">":
                 tokens.append(self.make_greader())
-                self.advance()
             elif self.char == "<":
                 tokens.append(self.make_less())
-                self.advance()
 
             else:
                 pos_start = self.pos.copy()
@@ -120,6 +117,7 @@ class Lexer:
         self.advance()
         if self.char == "=":
             type_ = TokenType.EE
+            self.advance()
         return Token(type_, pos_start=pos_start, pos_end=self.pos)
 
     def make_less(self):
@@ -128,6 +126,7 @@ class Lexer:
         self.advance()
         if self.char == "=":
             type_ = TokenType.LTE
+            self.advance()
         return Token(type_, pos_start=pos_start, pos_end=self.pos)
 
     def make_greader(self):
@@ -136,4 +135,5 @@ class Lexer:
         self.advance()
         if self.char == "=":
             type_ = TokenType.GTE
+            self.advance()
         return Token(type_, pos_start=pos_start, pos_end=self.pos)

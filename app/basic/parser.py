@@ -1,11 +1,13 @@
 from .error import InvalidSyntaxError
 from .nodes import (
     BinOpNode,
+    ForNode,
     IfNode,
     NumberNode,
     UnaryOpNode,
     VarAccessNode,
     VarAssignNode,
+    WhileNode,
 )
 from .token import TokenKeywords, TokenType
 
@@ -107,6 +109,130 @@ class Parser:
 
         return res.success(IfNode(cases, else_case))
 
+    def for_expr(self):
+        res = ParserResult()
+        if not self.current_token.isKeword(TokenKeywords._for):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'for'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_token.type != TokenType.IDENTIFIRER:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected identifier",
+                )
+            )
+
+        var_name = self.current_token
+        res.register_advance()
+        self.advance()
+
+        if self.current_token.type != TokenType.EQ:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected '='",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        start_value = res.register(self.expr())
+        if res.error:
+            return res
+
+        if not self.current_token.isKeword(TokenKeywords._to):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'to'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        end_value = res.register(self.expr())
+        if res.error:
+            return res
+
+        if self.current_token.isKeword(TokenKeywords._step):
+            res.register_advance()
+            self.advance()
+
+            step_value = res.register(self.expr())
+            if res.error:
+                return res
+        else:
+            step_value = None
+
+        if not self.current_token.isKeword(TokenKeywords._then):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'then'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        body = res.register(self.expr())
+        if res.error:
+            return res
+
+        return res.success(ForNode(var_name, start_value, end_value, step_value, body))
+
+    def while_expr(self):
+        res = ParserResult()
+
+        if not self.current_token.isKeword(TokenKeywords._while):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'WHILE'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        condition = res.register(self.expr())
+        if res.error:
+            return res
+
+        if not self.current_token.isKeword(TokenKeywords._then):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected 'THEN'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        body = res.register(self.expr())
+        if res.error:
+            return res
+
+        return res.success(WhileNode(condition, body))
+
     def atom(self):
         res = ParserResult()
         t = self.current_token
@@ -142,6 +268,18 @@ class Parser:
             if res.error:
                 return res
             return res.success(if_exp)
+
+        elif t.isKeword(TokenKeywords._for):
+            for_exp = res.register(self.for_expr())
+            if res.error:
+                return res
+            return res.success(for_exp)
+
+        elif t.isKeword(TokenKeywords._while):
+            for_while = res.register(self.while_expr())
+            if res.error:
+                return res
+            return res.success(for_while)
 
         return res.failure(
             InvalidSyntaxError(
