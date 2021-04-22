@@ -1,7 +1,7 @@
 from .error import RunTimeError
 from .number import Number
 from .runtime import RuntimeResult
-from .token import TokenType
+from .token import TokenKeywords, TokenType
 
 
 class Interpreter:
@@ -78,9 +78,9 @@ class Interpreter:
             r, e = left.get_comparison_lte(rigth)
         elif node.token.type == TokenType.GTE:
             r, e = left.get_comparison_gte(rigth)
-        elif node.token.matches(TokenType.KEYWORD, "and"):
+        elif node.token.isKeword(TokenKeywords._and):
             r, e = left.anded_by(rigth)
-        elif node.token.matches(TokenType.KEYWORD, "or"):
+        elif node.token.isKeword(TokenKeywords._or):
             r, e = left.ored_by(rigth)
 
         if e:
@@ -95,7 +95,7 @@ class Interpreter:
             return res
         if node.token.type == TokenType.MINUS:
             num, e = num.multed_by(Number(-1))
-        elif node.token.matches(TokenType.KEYWORD, "not"):
+        elif node.token.isKeword(TokenKeywords._not):
             num, e = num.notted()
 
         if e:

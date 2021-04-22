@@ -46,7 +46,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'if'",
+                    f"Expected '{TokenKeywords._if.value}'",
                 )
             )
 
@@ -62,7 +62,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'then'",
+                    f"Expected '{TokenKeywords._then.value}'",
                 )
             )
 
@@ -87,7 +87,7 @@ class Parser:
                     InvalidSyntaxError(
                         self.current_token.pos_start,
                         self.current_token.pos_end,
-                        f"Expected 'then'",
+                        f"Expected '{TokenKeywords._then.value}'",
                     )
                 )
 
@@ -116,7 +116,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'for'",
+                    f"Expected '{TokenKeywords._for.value}'",
                 )
             )
 
@@ -157,7 +157,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'to'",
+                    f"Expected '{TokenKeywords._to.value}'",
                 )
             )
 
@@ -183,7 +183,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'then'",
+                    f"Expected '{TokenKeywords._then.value}'",
                 )
             )
 
@@ -204,7 +204,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'WHILE'",
+                    f"Expected '{TokenKeywords._while.value}'",
                 )
             )
 
@@ -220,7 +220,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Expected 'THEN'",
+                    f"Expected '{TokenKeywords._then.value}'",
                 )
             )
 
@@ -397,7 +397,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    "Excepted number, variable, variable declaration '+', '-', '(', 'not'",
+                    f"Excepted number, variable, {TokenKeywords._var.value} '+', '-', '(', '{TokenKeywords._not.value}'",
                 )
             )
         return res.success(node)

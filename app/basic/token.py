@@ -25,6 +25,24 @@ class TokenType(Enum):
 
 
 class TokenKeywords(Enum):
+    _var = "var"
+    _and = "and"
+    _or = "or"
+    _not = "not"
+    _if = "if"
+    _else = "else"
+    _then = "then"
+    _elif = "elif"
+    _for = "for"
+    _to = "to"
+    _step = "step"
+    _while = "while"
+
+
+"""
+Polish wersion for noobs
+
+class TokenKeywords(Enum):
     _var = "zmienna"
     _and = "and"
     _or = "lub"
@@ -33,10 +51,12 @@ class TokenKeywords(Enum):
     _else = "inaczej"
     _then = "wtedy"
     _elif = "inaczej_jesli"
-    _for = "for"
-    _to = "to"
-    _step = "step"
-    _while = "while"
+    _for = "powtazaj"
+    _to = "do"
+    _step = "co"
+    _while = "dopuki"
+
+"""
 
 
 class Token:
