@@ -29,8 +29,7 @@ class Lexer:
                 tokens.append(Token(TokenType.PLUS, pos_start=self.pos))
                 self.advance()
             elif self.char == "-":
-                tokens.append(Token(TokenType.MINUS, pos_start=self.pos))
-                self.advance()
+                tokens.append(self.make_arrow())
             elif self.char == "*":
                 tokens.append(Token(TokenType.MUL, pos_start=self.pos))
                 self.advance()
@@ -58,6 +57,9 @@ class Lexer:
                 tokens.append(self.make_greader())
             elif self.char == "<":
                 tokens.append(self.make_less())
+            elif self.char == ",":
+                tokens.append(Token(TokenType.COMMA, pos_start=self.pos))
+                self.advance()
 
             else:
                 pos_start = self.pos.copy()
@@ -135,5 +137,14 @@ class Lexer:
         self.advance()
         if self.char == "=":
             type_ = TokenType.GTE
+            self.advance()
+        return Token(type_, pos_start=pos_start, pos_end=self.pos)
+
+    def make_arrow(self):
+        type_ = TokenType.MINUS
+        pos_start = self.pos.copy()
+        self.advance()
+        if self.char == ">":
+            type_ = TokenType.ARROW
             self.advance()
         return Token(type_, pos_start=pos_start, pos_end=self.pos)

@@ -1,7 +1,9 @@
 from .error import InvalidSyntaxError
 from .nodes import (
     BinOpNode,
+    CallNode,
     ForNode,
+    FuncDefNode,
     IfNode,
     NumberNode,
     UnaryOpNode,
@@ -281,16 +283,69 @@ class Parser:
                 return res
             return res.success(for_while)
 
+        elif t.isKeword(TokenKeywords._func):
+            func_def = res.register(self.func_def())
+            if res.error:
+                return res
+            return res.success(func_def)
+
         return res.failure(
             InvalidSyntaxError(
                 t.pos_start,
                 t.pos_end,
-                "Excepted number, variable, '+', '-', '('",
+                f"Excepted number, variable, '+', '-', '(', '{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}'",
             )
         )
 
+    def call(self):
+        res = ParserResult()
+        atom = res.register(self.atom())
+        if res.error:
+            return res
+
+        if self.current_token.type == TokenType.LPAREN:
+            res.register_advance()
+            self.advance()
+            arg_nodes = []
+
+            if self.current_token.type == TokenType.RPAREN:
+                res.register_advance()
+                self.advance()
+            else:
+                arg_nodes.append(res.register(self.expr()))
+                if res.error:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_token.pos_start,
+                            self.current_token.pos_end,
+                            f"Excepted ')', '{TokenKeywords._var.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', number, identifier",
+                        )
+                    )
+
+                while self.current_token.type == TokenType.COMMA:
+                    res.register_advance()
+                    self.advance()
+
+                    arg_nodes.append(res.register(self.expr()))
+                    if res.error:
+                        return res
+
+                if self.current_token.type != TokenType.RPAREN:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_token.pos_start,
+                            self.current_token.pos_end,
+                            f"Excepted ')', ','",
+                        )
+                    )
+
+                res.register_advance()
+                self.advance()
+            return res.success(CallNode(atom, arg_nodes))
+        return res.success(atom)
+
     def power(self):
-        return self.bin_op(self.atom, (TokenType.POW,), self.factor)
+        return self.bin_op(self.call, (TokenType.POW,), self.factor)
 
     def factor(self):
         res = ParserResult()
@@ -397,7 +452,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Excepted number, variable, {TokenKeywords._var.value} '+', '-', '(', '{TokenKeywords._not.value}'",
+                    f"Excepted number, variable,'{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', '{TokenKeywords._var.value}', '+', '-', '(', '{TokenKeywords._not.value}'",
                 )
             )
         return res.success(node)
@@ -424,6 +479,109 @@ class Parser:
             left = BinOpNode(op, left, rigth)
 
         return res.success(left)
+
+    def func_def(self):
+        res = ParserResult()
+
+        if not self.current_token.isKeword(TokenKeywords._func):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected '{TokenKeywords._func.value}'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_token.type == TokenType.IDENTIFIRER:
+            var_name_tok = self.current_token
+            res.register_advance()
+            self.advance()
+            if self.current_token.type != TokenType.LPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Expected '('",
+                    )
+                )
+        else:
+            var_name_tok = None
+            if self.current_token.type != TokenType.LPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Expected identifier, '('",
+                    )
+                )
+
+        res.register_advance()
+        self.advance()
+
+        arg_name_toks = []
+        if self.current_token.type == TokenType.IDENTIFIRER:
+            arg_name_toks.append(self.current_token)
+            res.register_advance()
+            self.advance()
+
+            while self.current_token.type == TokenType.COMMA:
+                res.register_advance()
+                self.advance()
+
+                if self.current_token.type != TokenType.IDENTIFIRER:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_token.pos_start,
+                            self.current_token.pos_end,
+                            f"Expected identifier",
+                        )
+                    )
+
+                arg_name_toks.append(self.current_token)
+                res.register_advance()
+                self.advance()
+
+            if self.current_token.type != TokenType.RPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Expected ',', ')'",
+                    )
+                )
+        else:
+            if self.current_token.type != TokenType.RPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Expected identifier, ')'",
+                    )
+                )
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_token.type != TokenType.ARROW:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Expected '->'",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        node_to_return = res.register(self.expr())
+        if res.error:
+            return res
+
+        return res.success(FuncDefNode(var_name_tok, arg_name_toks, node_to_return))
 
 
 class ParserResult:

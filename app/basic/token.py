@@ -22,6 +22,8 @@ class TokenType(Enum):
     GT = 17
     GTE = 18
     LTE = 19
+    COMMA = 20
+    ARROW = 21
 
 
 class TokenKeywords(Enum):
@@ -37,6 +39,7 @@ class TokenKeywords(Enum):
     _to = "to"
     _step = "step"
     _while = "while"
+    _func = "def"
 
 
 """
