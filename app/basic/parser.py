@@ -5,6 +5,7 @@ from .nodes import (
     ForNode,
     FuncDefNode,
     IfNode,
+    ListNode,
     NumberNode,
     StringNode,
     UnaryOpNode,
@@ -270,6 +271,13 @@ class Parser:
                         "Expected ')'",
                     )
                 )
+
+        elif t.type == TokenType.LSQUARE:
+            list_expr = res.register(self.list_expr())
+            if res.error:
+                return res
+            return res.success(list_expr)
+
         elif t.isKeword(TokenKeywords._if):
             if_exp = res.register(self.if_expr())
             if res.error:
@@ -298,8 +306,62 @@ class Parser:
             InvalidSyntaxError(
                 t.pos_start,
                 t.pos_end,
-                f"Excepted number, variable, '+', '-', '(', '{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}'",
+                f"Excepted number, variable, '+', '-', '(', '[', '{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}'",
             )
+        )
+
+    def list_expr(self):
+        res = ParserResult()
+        element_nodes = []
+        pos_start = self.current_token.pos_start.copy()
+
+        if self.current_token.type != TokenType.LSQUARE:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Excepted '['",
+                )
+            )
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_token.type == TokenType.RSQUARE:
+            res.register_advance()
+            self.advance()
+        else:
+            element_nodes.append(res.register(self.expr()))
+            if res.error:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Excepted '[', ']', '{TokenKeywords._var.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', number, identifier",
+                    )
+                )
+
+            while self.current_token.type == TokenType.COMMA:
+                res.register_advance()
+                self.advance()
+
+                element_nodes.append(res.register(self.expr()))
+                if res.error:
+                    return res
+
+            if self.current_token.type != TokenType.RSQUARE:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
+                        f"Excepted ']', ','",
+                    )
+                )
+
+            res.register_advance()
+            self.advance()
+        return res.success(
+            ListNode(element_nodes, pos_start, self.current_token.pos_end.copy())
         )
 
     def call(self):
@@ -323,7 +385,7 @@ class Parser:
                         InvalidSyntaxError(
                             self.current_token.pos_start,
                             self.current_token.pos_end,
-                            f"Excepted ')', '{TokenKeywords._var.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', number, identifier",
+                            f"Excepted ')', '[', '{TokenKeywords._var.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', number, identifier",
                         )
                     )
 
@@ -403,7 +465,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    "Excepted number, variable, '+', '-', '('",
+                    "Excepted number, variable, '+', '-', '(', '['",
                 )
             )
         return res.success(node)
@@ -457,7 +519,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_token.pos_start,
                     self.current_token.pos_end,
-                    f"Excepted number, variable,'{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', '{TokenKeywords._var.value}', '+', '-', '(', '{TokenKeywords._not.value}'",
+                    f"Excepted number, variable,'{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', '{TokenKeywords._var.value}', '+', '-', '(', '[', '{TokenKeywords._not.value}'",
                 )
             )
         return res.success(node)
