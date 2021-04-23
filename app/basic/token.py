@@ -24,6 +24,7 @@ class TokenType(Enum):
     LTE = 19
     COMMA = 20
     ARROW = 21
+    STRING = 22
 
 
 class TokenKeywords(Enum):

@@ -6,6 +6,9 @@ class Position:
         self.fn = fn
         self.ftxt = ftxt
 
+    def __repr__(self):
+        return f"id:{self.id},ln{self.ln},col{self.col}"
+
     def advance(self, char=None):
         self.id += 1
         self.col += 1

@@ -25,6 +25,8 @@ class Lexer:
                 tokens.append(self.make_number())
             elif self.char in Token.LETTERS:
                 tokens.append(self.make_identifier())
+            elif self.char == '"':
+                tokens.append(self.make_string())
             elif self.char == "+":
                 tokens.append(Token(TokenType.PLUS, pos_start=self.pos))
                 self.advance()
@@ -148,3 +150,25 @@ class Lexer:
             type_ = TokenType.ARROW
             self.advance()
         return Token(type_, pos_start=pos_start, pos_end=self.pos)
+
+    def make_string(self):
+        string = ""
+        pos_start = self.pos.copy()
+        escape_char = False
+        self.advance()
+
+        escape_chars = {"n": "\n", "t": "\t"}
+
+        while self.char != None and self.char != '"' or escape_char:
+            if escape_char:
+                string += escape_chars.get(self.char, self.char)
+                escape_char = False
+            else:
+                if self.char == "\\":
+                    escape_char = True
+                else:
+                    string += self.char
+            self.advance()
+
+        self.advance()
+        return Token(TokenType.STRING, string, pos_start=pos_start, pos_end=self.pos)

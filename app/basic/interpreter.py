@@ -3,6 +3,7 @@ from .runtime import RuntimeResult
 from .token import TokenKeywords, TokenType
 from .values.function import Function
 from .values.number import Number
+from .values.string import String
 
 
 class Interpreter:
@@ -213,3 +214,10 @@ class Interpreter:
         if res.error:
             return res
         return res.success(return_value)
+
+    def visit_StringNode(self, node, context):
+        return RuntimeResult().success(
+            String(node.token.value)
+            .set_context(context)
+            .set_pos(node.pos_start, node.pos_end)
+        )

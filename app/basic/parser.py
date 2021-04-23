@@ -6,6 +6,7 @@ from .nodes import (
     FuncDefNode,
     IfNode,
     NumberNode,
+    StringNode,
     UnaryOpNode,
     VarAccessNode,
     VarAssignNode,
@@ -243,6 +244,10 @@ class Parser:
             res.register_advance()
             self.advance()
             return res.success(NumberNode(t))
+        elif t.type == TokenType.STRING:
+            res.register_advance()
+            self.advance()
+            return res.success(StringNode(t))
         elif t.type == TokenType.IDENTIFIRER:
             res.register_advance()
             self.advance()
