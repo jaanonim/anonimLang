@@ -5,7 +5,15 @@ from basic.parser import Parser
 from basic.symbols import SymbolTable
 
 global_symbol_table = SymbolTable()
+"""
+global_symbol_table.set(
+    "null",
+)
+global_symbol_table.set("true")
+global_symbol_table.set("false")
+"""
 debug = True
+
 
 def run(fn, text):
     l = Lexer(fn, text)
