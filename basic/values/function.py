@@ -5,10 +5,50 @@ from ..symbols import SymbolTable
 from .value import Value
 
 
-class Function(Value):
-    def __init__(self, name, body_node, arg_names):
+class BaseFunction(Value):
+    def __init__(self, name):
         super().__init__()
         self.name = name or "<anonymus>"
+
+    def generate_new_context(self):
+        new_context = Context(self.name, self.context, self.pos_start)
+        new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
+        return new_context
+
+    def check_args(self, arg_names, args):
+        res = RuntimeResult()
+
+        if len(args) != len(arg_names):
+            return res.failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    f"The function {self.name} can only take {len(arg_names)} arguments but has received {len(args)}.",
+                    self.context,
+                )
+            )
+
+        return res.success(None)
+
+    def populate_args(self, arg_names, args, exec_context):
+        for i in range(len(args)):
+            arg_name = arg_names[i]
+            arg_value = args[i]
+            arg_value.set_context(exec_context)
+            exec_context.symbol_table.set(arg_name, arg_value)
+
+    def check_and_populate_args(self, arg_names, args, exec_context):
+        res = RuntimeResult()
+        res.register(self.check_args(arg_names, args))
+        if res.error:
+            return res
+        self.populate_args(arg_names, args, exec_context)
+        return res.success(None)
+
+
+class Function(BaseFunction):
+    def __init__(self, name, body_node, arg_names):
+        super().__init__(name)
         self.body_node = body_node
         self.arg_names = arg_names
 
@@ -23,30 +63,17 @@ class Function(Value):
 
     def execute(self, args):
         res = RuntimeResult()
+        exec_context = self.generate_new_context()
+
         from ..interpreter import Interpreter
 
         interpreter = Interpreter()
 
-        new_context = Context(self.name, self.context, self.pos_start)
-        new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
+        self.check_and_populate_args(self.arg_names, args, exec_context)
+        if res.error:
+            return res
 
-        if len(args) != len(self.arg_names):
-            return res.failure(
-                RunTimeError(
-                    self.pos_start,
-                    self.pos_end,
-                    f"The function {self.name} can only take {len(self.arg_names)} arguments but has received {len(args)}.",
-                    self.context,
-                )
-            )
-
-        for i in range(len(args)):
-            arg_name = self.arg_names[i]
-            arg_value = args[i]
-            arg_value.set_context(new_context)
-            new_context.symbol_table.set(arg_name, arg_value)
-
-        value = res.register(interpreter.visit(self.body_node, new_context))
+        value = res.register(interpreter.visit(self.body_node, exec_context))
         if res.error:
             return res
 

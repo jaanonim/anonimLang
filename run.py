@@ -3,16 +3,23 @@ from basic.interpreter import Interpreter
 from basic.lexer import Lexer
 from basic.parser import Parser
 from basic.symbols import SymbolTable
+from basic.values.build_in_functions import BuiltInFunction
+from basic.values.number import Number
 
 global_symbol_table = SymbolTable()
-"""
-global_symbol_table.set(
-    "null",
-)
-global_symbol_table.set("true")
-global_symbol_table.set("false")
-"""
-debug = True
+global_symbol_table.set("NULL", Number.null)
+global_symbol_table.set("TRUE", Number.true)
+global_symbol_table.set("FALSE", Number.false)
+global_symbol_table.set("print", BuiltInFunction.print)
+global_symbol_table.set("input", BuiltInFunction.input)
+global_symbol_table.set("inputInt", BuiltInFunction.input_int)
+global_symbol_table.set("isNumber", BuiltInFunction.is_number)
+global_symbol_table.set("isString", BuiltInFunction.is_string)
+global_symbol_table.set("isList", BuiltInFunction.is_list)
+global_symbol_table.set("isFunction", BuiltInFunction.is_function)
+global_symbol_table.set("exit", BuiltInFunction.exit)
+
+debug = False
 
 
 def run(fn, text):

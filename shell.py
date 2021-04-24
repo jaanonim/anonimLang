@@ -8,4 +8,4 @@ if __name__ == "__main__":
         if e:
             print(e.as_str())
         elif r:
-            print(r)
+            print(repr(r))

@@ -8,6 +8,9 @@ class List(Value):
         super().__init__()
         self.elements = elements
 
+    def __str__(self):
+        return ", ".join([str(x) for x in self.elements])
+
     def __repr__(self):
         return f'[{", ".join([str(x) for x in self.elements])}]'
 

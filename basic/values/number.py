@@ -121,3 +121,8 @@ class Number(Value):
 
     def notted(self):
         return Number(1 if self.value == 0 else 0).set_context(self.context), None
+
+
+Number.null = Number(0)
+Number.false = Number(0)
+Number.true = Number(1)
