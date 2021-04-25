@@ -50,13 +50,23 @@ class BuiltInFunction(BaseFunction):
     execute_print.arg_names = ["value"]
 
     def execute_input(self, exec_context):
-        text = input(str(exec_context.symbol_table.get("value")))
+        arg = exec_context.symbol_table.get("value")
+        if arg:
+            arg = str(arg)
+        else:
+            arg = ""
+        text = input(arg)
         return RuntimeResult().success(String(text))
 
-    execute_print.arg_names = ["value"]
+    execute_input.arg_names = ["value"]
 
     def execute_input_int(self, exec_context):
-        text = input(str(exec_context.symbol_table.get("value")))
+        arg = exec_context.symbol_table.get("value")
+        if arg:
+            arg = str(arg)
+        else:
+            arg = ""
+        text = input(arg)
         try:
             num = int(text)
         except ValueError:
@@ -64,7 +74,7 @@ class BuiltInFunction(BaseFunction):
             return RuntimeResult().success(Number.null)
         return RuntimeResult().success(Number(num))
 
-    execute_print.arg_names = ["value"]
+    execute_input_int.arg_names = ["value"]
 
     def execute_clear(self, exec_context):
         os.system("cls" if os.name == "nt" else "clear")

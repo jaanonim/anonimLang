@@ -480,8 +480,8 @@ class Parser:
             if self.current_token.type != TokenType.IDENTIFIRER:
                 return res.failure(
                     InvalidSyntaxError(
-                        self.current_tok.pos_start,
-                        self.current_tok.pos_end,
+                        self.current_token.pos_start,
+                        self.current_token.pos_end,
                         "Expected identifier",
                     )
                 )

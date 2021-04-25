@@ -68,7 +68,7 @@ class TokenKeywords(Enum):
 class Token:
     DIGITS = "0123456789"
     LETTERS = string.ascii_letters
-    LETTERS_DIGITS = LETTERS + DIGITS
+    LETTERS_DIGITS = LETTERS + DIGITS + "_"
 
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
         self.type = type_
