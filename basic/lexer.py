@@ -53,6 +53,15 @@ class Lexer:
             elif self.char == "]":
                 tokens.append(Token(TokenType.RSQUARE, pos_start=self.pos))
                 self.advance()
+            elif self.char == "{":
+                tokens.append(Token(TokenType.LCURBRA, pos_start=self.pos))
+                self.advance()
+            elif self.char == "}":
+                tokens.append(Token(TokenType.RCURBRA, pos_start=self.pos))
+                self.advance()
+            elif self.char in ";\n":
+                tokens.append(Token(TokenType.NEWLINE, pos_start=self.pos))
+                self.advance()
             elif self.char == "!":
                 t, e = self.make_not_equals()
                 if e:

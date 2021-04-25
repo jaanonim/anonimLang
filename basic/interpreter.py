@@ -109,7 +109,7 @@ class Interpreter:
     def visit_IfNode(self, node, context):
         res = RuntimeResult()
 
-        for condition, expr in node.cases:
+        for condition, expr, return_null in node.cases:
             condition_value = res.register(self.visit(condition, context))
             if res.error:
                 return res
@@ -118,15 +118,16 @@ class Interpreter:
             expr_value = res.register(self.visit(expr, context))
             if res.error:
                 return res
-            return res.success(expr_value)
+            return res.success(Number.null if return_null else expr_value)
 
         if node.else_case:
-            else_value = res.register(self.visit(node.else_case, context))
+            expr, return_null = node.else_case
+            else_value = res.register(self.visit(expr, context))
             if res.error:
                 return res
-            return res.success(else_value)
+            return res.success(Number.null if return_null else else_value)
 
-        return res.success(None)
+        return res.success(Number.null)
 
     def visit_ForNode(self, node, context):
         res = RuntimeResult()
@@ -163,7 +164,11 @@ class Interpreter:
                 return res
 
         return res.success(
-            List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Number.null
+            if node.return_null
+            else List(elements)
+            .set_context(context)
+            .set_pos(node.pos_start, node.pos_end)
         )
 
     def visit_WhileNode(self, node, context):
@@ -183,7 +188,11 @@ class Interpreter:
                 return res
 
         return res.success(
-            List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+            Number.null
+            if node.return_null
+            else List(elements)
+            .set_context(context)
+            .set_pos(node.pos_start, node.pos_end)
         )
 
     def visit_FuncDefNode(self, node, context):
@@ -194,7 +203,7 @@ class Interpreter:
         arg_names = [arg_name.value for arg_name in node.arg_names_toks]
 
         func_value = (
-            Function(func_name, body_node, arg_names)
+            Function(func_name, body_node, arg_names, node.return_null)
             .set_context(context)
             .set_pos(node.pos_start, node.pos_end)
         )

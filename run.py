@@ -19,7 +19,7 @@ global_symbol_table.set("is_list", BuiltInFunction.is_list)
 global_symbol_table.set("is_function", BuiltInFunction.is_function)
 global_symbol_table.set("exit", BuiltInFunction.exit)
 
-debug = False
+debug = True
 
 
 def run(fn, text):

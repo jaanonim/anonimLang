@@ -2,6 +2,7 @@ from ..context import Context
 from ..error import RunTimeError
 from ..runtime import RuntimeResult
 from ..symbols import SymbolTable
+from .number import Number
 from .value import Value
 
 
@@ -47,16 +48,17 @@ class BaseFunction(Value):
 
 
 class Function(BaseFunction):
-    def __init__(self, name, body_node, arg_names):
+    def __init__(self, name, body_node, arg_names, return_null):
         super().__init__(name)
         self.body_node = body_node
         self.arg_names = arg_names
+        self.return_null = return_null
 
     def __repr__(self):
         return f"<function {self.name}>"
 
     def copy(self):
-        copy = Function(self.name, self.body_node, self.arg_names)
+        copy = Function(self.name, self.body_node, self.arg_names, self.return_null)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -77,4 +79,4 @@ class Function(BaseFunction):
         if res.error:
             return res
 
-        return res.success(value)
+        return res.success(Number.null if self.return_null else value)

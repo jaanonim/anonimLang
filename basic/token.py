@@ -27,6 +27,9 @@ class TokenType(Enum):
     STRING = 22
     LSQUARE = 23
     RSQUARE = 23
+    LCURBRA = 24
+    RCURBRA = 25
+    NEWLINE = 26
 
 
 class TokenKeywords(Enum):
@@ -36,7 +39,6 @@ class TokenKeywords(Enum):
     _not = "not"
     _if = "if"
     _else = "else"
-    _then = "then"
     _elif = "elif"
     _for = "for"
     _to = "to"
@@ -55,7 +57,6 @@ class TokenKeywords(Enum):
     _not = "nie"
     _if = "jezeli"
     _else = "inaczej"
-    _then = "wtedy"
     _elif = "inaczej_jesli"
     _for = "powtazaj"
     _to = "do"
