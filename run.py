@@ -20,8 +20,9 @@ global_symbol_table.set("is_function", BuiltInFunction.is_function)
 global_symbol_table.set("exit", BuiltInFunction.exit)
 global_symbol_table.set("run", BuiltInFunction.run)
 global_symbol_table.set("len", BuiltInFunction.len)
+global_symbol_table.set("clear", BuiltInFunction.clear)
 
-debug = True
+debug = False
 
 
 def run(fn, text):

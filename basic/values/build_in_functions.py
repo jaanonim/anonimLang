@@ -70,8 +70,14 @@ class BuiltInFunction(BaseFunction):
         try:
             num = int(text)
         except ValueError:
-            print(f"'{text}' must be an intiger.")
-            return RuntimeResult().success(Number.null)
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    f"'{text}' must be an intiger.",
+                    exec_context,
+                )
+            )
         return RuntimeResult().success(Number(num))
 
     execute_input_int.arg_names = ["value"]

@@ -79,7 +79,6 @@ class Parser:
                 break
             statment = res.try_register(self.statment())
             if not statment:
-                print(res.to_reverse_count)
                 self.reverse(res.to_reverse_count)
                 more_statments = False
                 continue
@@ -163,7 +162,7 @@ class Parser:
                         InvalidSyntaxError(
                             self.current_token.pos_start,
                             self.current_token.pos_end,
-                            "Expected ''",
+                            "Expected '}'",
                         )
                     )
 

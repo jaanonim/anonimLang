@@ -18,7 +18,7 @@ class TokenType(Enum):
     EQ = 13
     EE = 14
     NE = 15
-    LT = 15
+    LT = 16
     GT = 17
     GTE = 18
     LTE = 19
