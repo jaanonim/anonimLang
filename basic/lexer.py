@@ -36,8 +36,9 @@ class Lexer:
                 tokens.append(Token(TokenType.MUL, pos_start=self.pos))
                 self.advance()
             elif self.char == "/":
-                tokens.append(Token(TokenType.DIV, pos_start=self.pos))
-                self.advance()
+                token = self.make_comment()
+                if token:
+                    tokens.append(token)
             elif self.char == "^":
                 tokens.append(Token(TokenType.POW, pos_start=self.pos))
                 self.advance()
@@ -187,3 +188,27 @@ class Lexer:
 
         self.advance()
         return Token(TokenType.STRING, string, pos_start=pos_start, pos_end=self.pos)
+
+    def make_comment(self):
+        pos_start = self.pos.copy()
+        self.advance()
+        if self.char == "/":
+            self.advance()
+            while self.char != "\n":
+                if self.char == None:
+                    break
+                self.advance()
+            self.advance()
+        elif self.char == "*":
+            self.advance()
+            while True:
+                if self.char == None:
+                    break
+                if self.char == "*":
+                    self.advance()
+                    if self.char == "/":
+                        break
+                self.advance()
+            self.advance()
+        else:
+            return Token(TokenType.DIV, pos_start=self.pos)

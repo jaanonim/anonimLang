@@ -111,6 +111,66 @@ class BuiltInFunction(BaseFunction):
 
     execute_exit.arg_names = []
 
+    def execute_len(self, exec_context):
+        _list = exec_context.symbol_table.get("list")
+
+        if not isinstance(_list, List):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "Argument must be List",
+                    exec_context,
+                )
+            )
+        return RuntimeResult().success(Number(len(_list.elements)))
+
+    execute_len.arg_names = ["list"]
+
+    def execute_run(self, exec_context):
+        fn = exec_context.symbol_table.get("value")
+
+        if not isinstance(fn, String):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "Argument must be string",
+                    exec_context,
+                )
+            )
+
+        fn = fn.value
+
+        try:
+            with open(fn, "r") as f:
+                s = f.read()
+        except Exception as e:
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    f'Failed to load script"{fn}"\n' + str(e),
+                    exec_context,
+                )
+            )
+        from run import run
+
+        _, error = run(fn, s)
+        if error:
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    f'Failed to load script"{fn}"\n' + error.as_str(),
+                    exec_context,
+                )
+            )
+
+        return RuntimeResult().success(Number.null)
+
+    execute_run.arg_names = ["value"]
+
 
 BuiltInFunction.print = BuiltInFunction("print")
 BuiltInFunction.input = BuiltInFunction("input")
@@ -121,3 +181,5 @@ BuiltInFunction.is_string = BuiltInFunction("is_string")
 BuiltInFunction.is_list = BuiltInFunction("is_list")
 BuiltInFunction.is_function = BuiltInFunction("is_function")
 BuiltInFunction.exit = BuiltInFunction("exit")
+BuiltInFunction.run = BuiltInFunction("run")
+BuiltInFunction.len = BuiltInFunction("len")

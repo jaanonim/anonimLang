@@ -42,8 +42,8 @@ class Parser:
             )
         return res
 
-    def reverse(self, to_reverse_count=1):
-        self.t_id = to_reverse_count
+    def reverse(self, to_reverse_count):
+        self.t_id -= to_reverse_count
         self.update_token()
         return self.current_token
 
@@ -79,11 +79,11 @@ class Parser:
                 break
             statment = res.try_register(self.statment())
             if not statment:
+                print(res.to_reverse_count)
                 self.reverse(res.to_reverse_count)
                 more_statments = False
                 continue
             statments.append(statment)
-
         return res.success(
             ListNode(statments, pos_start, self.current_token.pos_end.copy())
         )

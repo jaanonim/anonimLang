@@ -18,6 +18,8 @@ global_symbol_table.set("is_string", BuiltInFunction.is_string)
 global_symbol_table.set("is_list", BuiltInFunction.is_list)
 global_symbol_table.set("is_function", BuiltInFunction.is_function)
 global_symbol_table.set("exit", BuiltInFunction.exit)
+global_symbol_table.set("run", BuiltInFunction.run)
+global_symbol_table.set("len", BuiltInFunction.len)
 
 debug = True
 
