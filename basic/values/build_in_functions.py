@@ -28,7 +28,7 @@ class BuiltInFunction(BaseFunction):
         method_name = f"execute_{self.name}"
         method = getattr(self, method_name, self.no_execute_method)
 
-        self.check_and_populate_args(method.arg_names, args, exec_context)
+        res.register(self.check_and_populate_args(method.arg_names, args, exec_context))
         if res.error:
             return res
 
