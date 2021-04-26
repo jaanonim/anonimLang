@@ -110,11 +110,11 @@ class WhileNode:
 
 
 class FuncDefNode:
-    def __init__(self, var_name_tok, arg_names_toks, body_node, return_null):
+    def __init__(self, var_name_tok, arg_names_toks, body_node, auto_return):
         self.var_name_tok = var_name_tok
         self.arg_names_toks = arg_names_toks
         self.body_node = body_node
-        self.return_null = return_null
+        self.auto_return = auto_return
 
         if self.var_name_tok:
             self.pos_start = self.var_name_tok.pos_start
@@ -137,3 +137,22 @@ class CallNode:
             self.pos_end = self.arg_nodes[-1].pos_end
         else:
             self.pos_end = self.node_to_call.pos_end
+
+
+class ReturnNode:
+    def __init__(self, node_to_return, pos_start, pos_end):
+        self.node_to_return = node_to_return
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+
+class ContinueNode:
+    def __init__(self, pos_start, pos_end):
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+
+class BreakNode:
+    def __init__(self, pos_start, pos_end):
+        self.pos_start = pos_start
+        self.pos_end = pos_end

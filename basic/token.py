@@ -45,6 +45,9 @@ class TokenKeywords(Enum):
     _step = "step"
     _while = "while"
     _func = "def"
+    _return = "return"
+    _continue = "continue"
+    _break = "break"
 
 
 """

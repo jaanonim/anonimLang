@@ -45,7 +45,7 @@ class Interpreter:
         res = RuntimeResult()
         var_name = node.token.value
         value = res.register(self.visit(node.value, context))
-        if res.error:
+        if res.should_return():
             return res
         context.symbol_table.set(var_name, value)
         return res.success(value)
@@ -53,10 +53,10 @@ class Interpreter:
     def visit_BinOpNode(self, node, context):
         res = RuntimeResult()
         left = res.register(self.visit(node.left, context))
-        if res.error:
+        if res.should_return():
             return res
         rigth = res.register(self.visit(node.rigth, context))
-        if res.error:
+        if res.should_return():
             return res
 
         if node.token.type == TokenType.PLUS:
@@ -94,7 +94,7 @@ class Interpreter:
     def visit_UnaryOpNode(self, node, context):
         res = RuntimeResult()
         num = res.register(self.visit(node.node, context))
-        if res.error:
+        if res.should_return():
             return res
         if node.token.type == TokenType.MINUS:
             num, e = num.multed_by(Number(-1))
@@ -111,19 +111,19 @@ class Interpreter:
 
         for condition, expr, return_null in node.cases:
             condition_value = res.register(self.visit(condition, context))
-            if res.error:
+            if res.should_return():
                 return res
 
-        if condition_value.is_true():
-            expr_value = res.register(self.visit(expr, context))
-            if res.error:
-                return res
-            return res.success(Number.null if return_null else expr_value)
+            if condition_value.is_true():
+                expr_value = res.register(self.visit(expr, context))
+                if res.should_return():
+                    return res
+                return res.success(Number.null if return_null else expr_value)
 
         if node.else_case:
             expr, return_null = node.else_case
             else_value = res.register(self.visit(expr, context))
-            if res.error:
+            if res.should_return():
                 return res
             return res.success(Number.null if return_null else else_value)
 
@@ -134,16 +134,16 @@ class Interpreter:
         elements = []
 
         start_value = res.register(self.visit(node.start_value_node, context))
-        if res.error:
+        if res.should_return():
             return res
 
         end_value = res.register(self.visit(node.end_value_node, context))
-        if res.error:
+        if res.should_return():
             return res
 
         if node.step_value_node:
             step_value = res.register(self.visit(node.step_value_node, context))
-            if res.error:
+            if res.should_return():
                 return res
         else:
             step_value = Number(1)
@@ -159,9 +159,17 @@ class Interpreter:
             context.symbol_table.set(node.var_name_tok.value, Number(i))
             i += step_value.value
 
-            elements.append(res.register(self.visit(node.body_node, context)))
-            if res.error:
+            value = res.register(self.visit(node.body_node, context))
+            if res.should_return() and res._continue == False and res._break == False:
                 return res
+
+            if res._continue:
+                continue
+
+            if res._break:
+                break
+
+            elements.append(value)
 
         return res.success(
             Number.null
@@ -177,15 +185,23 @@ class Interpreter:
 
         while True:
             condition = res.register(self.visit(node.condition_node, context))
-            if res.error:
+            if res.should_return():
                 return res
 
             if not condition.is_true():
                 break
 
-            elements.append(res.register(self.visit(node.body_node, context)))
-            if res.error:
+            value = res.register(self.visit(node.body_node, context))
+            if res.should_return() and res._continue == False and res._break == False:
                 return res
+
+            if res._continue:
+                continue
+
+            if res._break:
+                break
+
+            elements.append(value)
 
         return res.success(
             Number.null
@@ -203,7 +219,7 @@ class Interpreter:
         arg_names = [arg_name.value for arg_name in node.arg_names_toks]
 
         func_value = (
-            Function(func_name, body_node, arg_names, node.return_null)
+            Function(func_name, body_node, arg_names, node.auto_return)
             .set_context(context)
             .set_pos(node.pos_start, node.pos_end)
         )
@@ -217,17 +233,17 @@ class Interpreter:
         res = RuntimeResult()
         args = []
         value_to_call = res.register(self.visit(node.node_to_call, context))
-        if res.error:
+        if res.should_return():
             return res
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
         for arg in node.arg_nodes:
             args.append(res.register(self.visit(arg, context)))
-            if res.error:
+            if res.should_return():
                 return res
 
         return_value = res.register(value_to_call.execute(args))
-        if res.error:
+        if res.should_return():
             return res
 
         return_value = (
@@ -250,9 +266,27 @@ class Interpreter:
 
         for element in node.element_nodes:
             elements.append(res.register(self.visit(element, context)))
-            if res.error:
+            if res.should_return():
                 return res
 
         return res.success(
             List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
+
+    def visit_ReturnNode(self, node, context):
+        res = RuntimeResult()
+
+        if node.node_to_return:
+            value = res.register(self.visit(node.node_to_return, context))
+            if res.should_return():
+                return res
+        else:
+            value = Number.null
+
+        return res.success_return(value)
+
+    def visit_ContinueNode(self, node, context):
+        return RuntimeResult().success_continue()
+
+    def visit_BreakNode(self, node, context):
+        return RuntimeResult().success_break()

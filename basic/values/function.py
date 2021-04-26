@@ -41,24 +41,24 @@ class BaseFunction(Value):
     def check_and_populate_args(self, arg_names, args, exec_context):
         res = RuntimeResult()
         res.register(self.check_args(arg_names, args))
-        if res.error:
+        if res.should_return():
             return res
         self.populate_args(arg_names, args, exec_context)
         return res.success(None)
 
 
 class Function(BaseFunction):
-    def __init__(self, name, body_node, arg_names, return_null):
+    def __init__(self, name, body_node, arg_names, auto_return):
         super().__init__(name)
         self.body_node = body_node
         self.arg_names = arg_names
-        self.return_null = return_null
+        self.auto_return = auto_return
 
     def __repr__(self):
         return f"<function {self.name}>"
 
     def copy(self):
-        copy = Function(self.name, self.body_node, self.arg_names, self.return_null)
+        copy = Function(self.name, self.body_node, self.arg_names, self.auto_return)
         copy.set_context(self.context)
         copy.set_pos(self.pos_start, self.pos_end)
         return copy
@@ -72,11 +72,14 @@ class Function(BaseFunction):
         interpreter = Interpreter()
 
         self.check_and_populate_args(self.arg_names, args, exec_context)
-        if res.error:
+        if res.should_return():
             return res
 
         value = res.register(interpreter.visit(self.body_node, exec_context))
-        if res.error:
+        if res.should_return() and res.return_value == None:
             return res
 
-        return res.success(Number.null if self.return_null else value)
+        return_value = (
+            (value if self.auto_return else None) or res.return_value or Number.null
+        )
+        return res.success(return_value)

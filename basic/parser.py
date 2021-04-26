@@ -1,12 +1,15 @@
 from .error import InvalidSyntaxError
 from .nodes import (
     BinOpNode,
+    BreakNode,
     CallNode,
+    ContinueNode,
     ForNode,
     FuncDefNode,
     IfNode,
     ListNode,
     NumberNode,
+    ReturnNode,
     StringNode,
     UnaryOpNode,
     VarAccessNode,
@@ -57,7 +60,7 @@ class Parser:
             res.register_advance()
             self.advance()
 
-        statment = res.register(self.expr())
+        statment = res.register(self.statment())
         if res.error:
             return res
         statments.append(statment)
@@ -74,7 +77,7 @@ class Parser:
 
             if not more_statments:
                 break
-            statment = res.try_register(self.expr())
+            statment = res.try_register(self.statment())
             if not statment:
                 self.reverse(res.to_reverse_count)
                 more_statments = False
@@ -84,6 +87,48 @@ class Parser:
         return res.success(
             ListNode(statments, pos_start, self.current_token.pos_end.copy())
         )
+
+    def statment(self):
+        res = ParserResult()
+        pos_start = self.current_token.pos_start.copy()
+
+        if self.current_token.isKeword(TokenKeywords._return):
+            res.register_advance()
+            self.advance()
+
+            expr = res.try_register(self.expr())
+            if not expr:
+                self.reverse(res.to_reverse_count)
+            return res.success(
+                ReturnNode(expr, pos_start, self.current_token.pos_start.copy())
+            )
+
+        if self.current_token.isKeword(TokenKeywords._continue):
+            res.register_advance()
+            self.advance()
+
+            return res.success(
+                ContinueNode(pos_start, self.current_token.pos_start.copy())
+            )
+
+        if self.current_token.isKeword(TokenKeywords._break):
+            res.register_advance()
+            self.advance()
+            return res.success(
+                BreakNode(pos_start, self.current_token.pos_start.copy())
+            )
+
+        expr = res.register(self.expr())
+        if res.error:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_token.pos_start,
+                    self.current_token.pos_end,
+                    f"Excepted number, variable, '{TokenKeywords._return.value}', '{TokenKeywords._break.value}', '{TokenKeywords._continue.value}', '{TokenKeywords._if.value}', '{TokenKeywords._for.value}', '{TokenKeywords._while.value}', '{TokenKeywords._func.value}', '{TokenKeywords._var.value}', '+', '-', '(', '[', '{TokenKeywords._not.value}'",
+                )
+            )
+
+        return res.success(expr)
 
     def if_expr(self):
         res = ParserResult()
@@ -125,10 +170,10 @@ class Parser:
                 res.register_advance()
                 self.advance()
             else:
-                expr = res.register(self.expr())
+                statment = res.register(self.statment())
                 if res.error:
                     return res
-                else_case = (expr, False)
+                else_case = (statment, False)
 
         return res.success(else_case)
 
@@ -171,6 +216,7 @@ class Parser:
         self.advance()
 
         condition = res.register(self.expr())
+
         if res.error:
             return res
 
@@ -200,10 +246,10 @@ class Parser:
             new_cases, else_case = all_cases
             cases.extend(new_cases)
         else:
-            expr = res.register(self.expr())
+            statment = res.register(self.statment())
             if res.error:
                 return res
-            cases.append((condition, expr, False))
+            cases.append((condition, statment, False))
             all_cases = res.register(self.elif_or_else_expr(True))
             if res.error:
                 return res
@@ -306,7 +352,7 @@ class Parser:
             )
 
         else:
-            body = res.register(self.expr())
+            body = res.register(self.statment())
             if res.error:
                 return res
             return res.success(
@@ -356,7 +402,7 @@ class Parser:
             return res.success(WhileNode(condition, body, True))
 
         else:
-            body = res.register(self.expr())
+            body = res.register(self.statment())
             if res.error:
                 return res
             return res.success(WhileNode(condition, body, False))
@@ -765,7 +811,7 @@ class Parser:
                 return res
 
             return res.success(
-                FuncDefNode(var_name_tok, arg_name_toks, node_to_return, False)
+                FuncDefNode(var_name_tok, arg_name_toks, node_to_return, True)
             )
 
         elif self.current_token.type == TokenType.LCURBRA:
@@ -789,7 +835,7 @@ class Parser:
             self.advance()
 
             return res.success(
-                FuncDefNode(var_name_tok, arg_name_toks, node_to_return, True)
+                FuncDefNode(var_name_tok, arg_name_toks, node_to_return, False)
             )
 
         else:
