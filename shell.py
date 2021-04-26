@@ -1,16 +1,38 @@
+import sys
+
 from run import run
 
-if __name__ == "__main__":
+
+def main():
+    try:
+        file_name = sys.argv[1]
+    except:
+        file_name = None
+    if file_name:
+        execute_command(f'run("{file_name}")')
+    else:
+        shell()
+
+
+def shell():
     while True:
         text = input("> ")
         if text.strip() == "":
             continue
-        r, e = run("shell", text)
+        execute_command(text)
 
-        if e:
-            print(e.as_str())
-        elif r:
-            if len(r.elements) == 1:
-                print(repr(r.elements[0]))
-            else:
-                print(repr(r))
+
+def execute_command(text):
+    r, e = run("shell", text)
+
+    if e:
+        print(e.as_str())
+    elif r:
+        if len(r.elements) == 1:
+            print(repr(r.elements[0]))
+        else:
+            print(repr(r))
+
+
+if __name__ == "__main__":
+    main()
