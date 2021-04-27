@@ -60,6 +60,9 @@ class Lexer:
             elif self.char == "}":
                 tokens.append(Token(TokenType.RCURBRA, pos_start=self.pos))
                 self.advance()
+            elif self.char == ".":
+                tokens.append(Token(TokenType.DOT, pos_start=self.pos))
+                self.advance()
             elif self.char in ";\n":
                 tokens.append(Token(TokenType.NEWLINE, pos_start=self.pos))
                 self.advance()

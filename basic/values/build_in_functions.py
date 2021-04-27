@@ -5,6 +5,7 @@ from ..runtime import RuntimeResult
 from .function import BaseFunction
 from .list import List
 from .number import Number
+from .object import Object
 from .string import String
 
 
@@ -23,7 +24,7 @@ class BuiltInFunction(BaseFunction):
 
     def execute(self, args):
         res = RuntimeResult()
-        exec_context = self.generate_new_context()
+        exec_context = self.context.generate_new_context(self.name, self.pos_start)
 
         method_name = f"execute_{self.name}"
         method = getattr(self, method_name, self.no_execute_method)
@@ -160,9 +161,9 @@ class BuiltInFunction(BaseFunction):
                     exec_context,
                 )
             )
-        from run import run
+        from run import run_with_context
 
-        _, error = run(fn, s)
+        _, error, context = run_with_context(fn, s, exec_context)
         if error:
             return RuntimeResult().failure(
                 RunTimeError(
@@ -172,8 +173,7 @@ class BuiltInFunction(BaseFunction):
                     exec_context,
                 )
             )
-
-        return RuntimeResult().success(Number.null)
+        return RuntimeResult().success(Object(context))
 
     execute_run.arg_names = ["value"]
 

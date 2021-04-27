@@ -421,7 +421,38 @@ class Parser:
         elif t.type == TokenType.IDENTIFIRER:
             res.register_advance()
             self.advance()
-            return res.success(VarAccessNode(t))
+            obj = VarAccessNode(t)
+            value = t
+            if self.current_token.type == TokenType.DOT:
+                res.register_advance()
+                self.advance()
+                if self.current_token.type != TokenType.IDENTIFIRER:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_token.pos_start,
+                            self.current_token.pos_end,
+                            "Expected identifirer",
+                        )
+                    )
+                value = self.current_token
+                res.register_advance()
+                self.advance()
+                while self.current_token.type == TokenType.DOT:
+                    obj = VarAccessNode(value, obj)
+                    res.register_advance()
+                    self.advance()
+                    if self.current_token.type != TokenType.IDENTIFIRER:
+                        return res.failure(
+                            InvalidSyntaxError(
+                                self.current_token.pos_start,
+                                self.current_token.pos_end,
+                                "Expected identifirer",
+                            )
+                        )
+                    value = self.current_token
+                    res.register_advance()
+                    self.advance()
+            return res.success(VarAccessNode(value, obj))
         elif t.type == TokenType.LPAREN:
             res.register_advance()
             self.advance()
@@ -654,10 +685,42 @@ class Parser:
                         "Expected identifier",
                     )
                 )
-
             var_name = self.current_token
+            obj = VarAccessNode(var_name)
+            value = var_name
+
             res.register_advance()
             self.advance()
+            if self.current_token.type == TokenType.DOT:
+                res.register_advance()
+                self.advance()
+                if self.current_token.type != TokenType.IDENTIFIRER:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_token.pos_start,
+                            self.current_token.pos_end,
+                            "Expected identifirer",
+                        )
+                    )
+                value = self.current_token
+                res.register_advance()
+                self.advance()
+                while self.current_token.type == TokenType.DOT:
+                    obj = VarAccessNode(value, obj)
+                    res.register_advance()
+                    self.advance()
+                    if self.current_token.type != TokenType.IDENTIFIRER:
+                        return res.failure(
+                            InvalidSyntaxError(
+                                self.current_token.pos_start,
+                                self.current_token.pos_end,
+                                "Expected identifirer",
+                            )
+                        )
+                    value = self.current_token
+                    res.register_advance()
+                    self.advance()
+
             t = self.current_token
             if t.type != TokenType.EQ:
                 return res.failure(
@@ -667,12 +730,13 @@ class Parser:
                         "Excepted '='",
                     )
                 )
+
             res.register_advance()
             self.advance()
             exp = res.register(self.expr())
             if res.error:
                 return res
-            return res.success(VarAssignNode(var_name, exp))
+            return res.success(VarAssignNode(value, exp, obj))
 
         node = res.register(
             self.bin_op(

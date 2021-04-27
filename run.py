@@ -45,3 +45,24 @@ def run(fn, text):
     res = i.visit(ast.node, c)
 
     return res.value, res.error
+
+
+def run_with_context(fn, text, context):
+    l = Lexer(fn, text)
+    t, e = l.make_tokens()
+    if e:
+        return None, e
+
+    if debug:
+        print(f"DEBUG: {t}")
+
+    p = Parser(t)
+    ast = p.parse()
+    if ast.error:
+        return None, ast.error, None
+    c = context.generate_new_context(fn)
+
+    i = Interpreter()
+    res = i.visit(ast.node, c)
+
+    return res.value, res.error, c

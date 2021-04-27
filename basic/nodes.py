@@ -62,17 +62,25 @@ class IfNode:
 
 
 class VarAccessNode:
-    def __init__(self, token):
+    def __init__(self, token, context_node=None):
         self.token = token
+        if context_node:
+            if context_node.token == token:
+                context_node = None
+        self.context_node = context_node
 
         self.pos_start = self.token.pos_start
         self.pos_end = self.token.pos_end
 
 
 class VarAssignNode:
-    def __init__(self, token, value):
+    def __init__(self, token, value, context_node=None):
         self.token = token
         self.value = value
+        if context_node or context_node.token:
+            if context_node.token == token:
+                context_node = None
+        self.context_node = context_node
 
         self.pos_start = self.token.pos_start
         self.pos_end = self.value.pos_end

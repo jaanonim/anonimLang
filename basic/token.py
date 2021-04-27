@@ -30,6 +30,7 @@ class TokenType(Enum):
     LCURBRA = 24
     RCURBRA = 25
     NEWLINE = 26
+    DOT = 27
 
 
 class TokenKeywords(Enum):

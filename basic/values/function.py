@@ -11,11 +11,6 @@ class BaseFunction(Value):
         super().__init__()
         self.name = name or "<anonymus>"
 
-    def generate_new_context(self):
-        new_context = Context(self.name, self.context, self.pos_start)
-        new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
-        return new_context
-
     def check_args(self, arg_names, args):
         res = RuntimeResult()
 
@@ -65,7 +60,7 @@ class Function(BaseFunction):
 
     def execute(self, args):
         res = RuntimeResult()
-        exec_context = self.generate_new_context()
+        exec_context = self.context.generate_new_context(self.name, self.pos_start)
 
         from ..interpreter import Interpreter
 

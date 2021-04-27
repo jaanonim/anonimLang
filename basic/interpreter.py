@@ -4,6 +4,7 @@ from .token import TokenKeywords, TokenType
 from .values.function import Function
 from .values.list import List
 from .values.number import Number
+from .values.object import Object
 from .values.string import String
 
 
@@ -26,6 +27,19 @@ class Interpreter:
     def visit_VarAccessNode(self, node, context):
         res = RuntimeResult()
         var_name = node.token.value
+        if node.context_node:
+            r = self.visit(node.context_node, context).value
+            if isinstance(r, Object):
+                context = r.value
+            else:
+                return res.failure(
+                    RunTimeError(
+                        node.context_node.pos_start,
+                        node.context_node.pos_end,
+                        f"'{node.context_node.token.value}' is not an object",
+                        context,
+                    )
+                )
         value = context.symbol_table.get(var_name)
 
         if not value:
@@ -44,6 +58,19 @@ class Interpreter:
     def visit_VarAssignNode(self, node, context):
         res = RuntimeResult()
         var_name = node.token.value
+        if node.context_node:
+            r = self.visit(node.context_node, context).value
+            if isinstance(r, Object):
+                context = r.value
+            else:
+                return res.failure(
+                    RunTimeError(
+                        node.context_node.pos_start,
+                        node.context_node.pos_end,
+                        f"'{node.context_node.token.value}' is not an object",
+                        context,
+                    )
+                )
         value = res.register(self.visit(node.value, context))
         if res.should_return():
             return res

@@ -1,0 +1,9 @@
+var obj = run("examples/Objects/object.ano")
+var obj2 = run("examples/Objects/object.ano")
+print(obj.some_parameter)
+var obj.some_parameter = 10
+var imie = input("Podaj imie: ")
+print(obj.some_function(imie))
+print(obj.some_parameter)
+print(obj2.some_parameter)
+

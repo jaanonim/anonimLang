@@ -1,0 +1,6 @@
+var some_parameter = 5
+
+def some_function(imie){
+    print("Hello "+imie)
+    return some_parameter
+}
