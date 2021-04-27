@@ -1,0 +1,20 @@
+{
+	"for": {
+		"prefix": "for",
+		"body": [
+			"for i=0 to $1 {",
+			"   $2",
+            "}"
+		],
+		"description": "Make for loop"
+	},
+    "while": {
+		"prefix": "while",
+		"body": [
+			"while $1 {",
+			"   $2",
+            "}"
+		],
+		"description": "Make while loop"
+	}
+}

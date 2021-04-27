@@ -26,5 +26,11 @@
         ["(", ")"],
         ["\"", "\""],
         ["'", "'"]
+    ],
+    "onEnterRules": [
+        {
+          "beforeText": "^\\s*(?:def|for|if|elif|else|while).*?:\\s*$",
+          "action": { "indent": "indent" }
+        }
     ]
 }

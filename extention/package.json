@@ -18,8 +18,14 @@
         }],
         "grammars": [{
             "language": "anonimlang",
-            "scopeName": "main.ano",
+            "scopeName": "source.ano",
             "path": "./syntaxes/anonimlang.tmLanguage.json"
-        }]
+        }],
+        "snippets": [
+			{
+				"language": "anonimlang",
+				"path": "./snippets.json"
+			}
+		]
     }
 }
