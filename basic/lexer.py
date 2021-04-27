@@ -25,7 +25,7 @@ class Lexer:
                 tokens.append(self.make_number())
             elif self.char in Token.LETTERS:
                 tokens.append(self.make_identifier())
-            elif self.char == '"':
+            elif self.char in "\"'":
                 tokens.append(self.make_string())
             elif self.char == "+":
                 tokens.append(Token(TokenType.PLUS, pos_start=self.pos))

@@ -1,0 +1,25 @@
+{
+    "name": "anonimlang",
+    "displayName": "anonimLang",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.55.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "anonimlang",
+            "aliases": ["anonimLang", "anonimlang"],
+            "extensions": [".ano"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "anonimlang",
+            "scopeName": "main.ano",
+            "path": "./syntaxes/anonimlang.tmLanguage.json"
+        }]
+    }
+}

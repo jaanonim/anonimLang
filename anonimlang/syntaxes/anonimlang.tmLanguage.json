@@ -1,0 +1,32 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "anonimLang",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.anonimlang",
+				"match": "\\b(if|else|elif|while|for|return|def)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.anonimlang",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.anonimlang",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "main.ano"
+}
