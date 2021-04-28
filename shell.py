@@ -9,6 +9,7 @@ def main():
     except:
         file_name = None
     if file_name:
+        file_name = file_name.replace("\\", "\\\\")
         execute_command(f'run("{file_name}")')
     else:
         shell()
