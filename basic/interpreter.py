@@ -96,6 +96,8 @@ class Interpreter:
             r, e = left.divided_by(rigth)
         elif node.token.type == TokenType.POW:
             r, e = left.powed_to(rigth)
+        elif node.token.type == TokenType.MOD:
+            r, e = left.module_by(rigth)
         elif node.token.type == TokenType.EE:
             r, e = left.get_comparison_eq(rigth)
         elif node.token.type == TokenType.NE:

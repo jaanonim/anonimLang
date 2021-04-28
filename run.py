@@ -21,6 +21,7 @@ global_symbol_table.set("exit", BuiltInFunction.exit)
 global_symbol_table.set("run", BuiltInFunction.run)
 global_symbol_table.set("len", BuiltInFunction.len)
 global_symbol_table.set("clear", BuiltInFunction.clear)
+global_symbol_table.set("random", BuiltInFunction.random)
 
 debug = False
 

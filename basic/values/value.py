@@ -31,6 +31,9 @@ class Value:
     def powed_by(self, other):
         return None, self.illegal_operation(other)
 
+    def module_by(self, other):
+        return None, self.illegal_operation(other)
+
     def get_comparison_eq(self, other):
         return None, self.illegal_operation(other)
 

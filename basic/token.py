@@ -31,6 +31,7 @@ class TokenType(Enum):
     RCURBRA = 25
     NEWLINE = 26
     DOT = 27
+    MOD = 28
 
 
 class TokenKeywords(Enum):

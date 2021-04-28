@@ -629,7 +629,7 @@ class Parser:
         return self.power()
 
     def term(self):
-        return self.bin_op(self.factor, (TokenType.MUL, TokenType.DIV))
+        return self.bin_op(self.factor, (TokenType.MUL, TokenType.DIV, TokenType.MOD))
 
     def arith_exp(self):
         return self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS))

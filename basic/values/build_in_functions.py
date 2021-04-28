@@ -1,4 +1,5 @@
 import os
+import random
 
 from ..error import RunTimeError
 from ..runtime import RuntimeResult
@@ -113,6 +114,11 @@ class BuiltInFunction(BaseFunction):
 
     execute_is_function.arg_names = ["value"]
 
+    def execute_random(self, exec_context):
+        return RuntimeResult().success(Number(random.random()))
+
+    execute_random.arg_names = []
+
     def execute_exit(self, exec_context):
         exit()
 
@@ -189,3 +195,4 @@ BuiltInFunction.is_function = BuiltInFunction("is_function")
 BuiltInFunction.exit = BuiltInFunction("exit")
 BuiltInFunction.run = BuiltInFunction("run")
 BuiltInFunction.len = BuiltInFunction("len")
+BuiltInFunction.random = BuiltInFunction("random")
