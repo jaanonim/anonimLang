@@ -5,6 +5,7 @@ from basic.parser import Parser
 from basic.symbols import SymbolTable
 from basic.values.build_in_functions import BuiltInFunction
 from basic.values.number import Number
+from basic.values.object import Object
 
 global_symbol_table = SymbolTable()
 global_symbol_table.set("NULL", Number.null)
@@ -62,6 +63,7 @@ def run_with_context(fn, text, context):
     if ast.error:
         return None, ast.error, None
     c = context.generate_new_context(fn)
+    c.symbol_table.set("self", Object(c))
 
     i = Interpreter()
     res = i.visit(ast.node, c)

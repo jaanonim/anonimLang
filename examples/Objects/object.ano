@@ -2,5 +2,6 @@ var some_parameter = 5
 
 def some_function(imie){
     print("Hello "+imie)
+    var self.some_parameter = self.some_parameter + 1
     return some_parameter
 }
