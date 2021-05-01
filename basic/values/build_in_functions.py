@@ -120,6 +120,24 @@ class BuiltInFunction(BaseFunction):
 
     execute_is_object.arg_names = ["value"]
 
+    def execute_isset(self, exec_context):
+        v_name = exec_context.symbol_table.get("value")
+        if not isinstance(v_name, String):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "Argument must be String",
+                    exec_context,
+                )
+            )
+
+        return RuntimeResult().success(
+            Number(1) if exec_context.symbol_table.get(v_name.value) else Number(0)
+        )
+
+    execute_isset.arg_names = ["value"]
+
     def execute_random(self, exec_context):
         return RuntimeResult().success(Number(random.random()))
 
@@ -199,6 +217,7 @@ BuiltInFunction.is_string = BuiltInFunction("is_string")
 BuiltInFunction.is_list = BuiltInFunction("is_list")
 BuiltInFunction.is_function = BuiltInFunction("is_function")
 BuiltInFunction.is_object = BuiltInFunction("is_object")
+BuiltInFunction.isset = BuiltInFunction("isset")
 BuiltInFunction.exit = BuiltInFunction("exit")
 BuiltInFunction.run = BuiltInFunction("run")
 BuiltInFunction.len = BuiltInFunction("len")
