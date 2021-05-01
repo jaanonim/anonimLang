@@ -6,4 +6,3 @@ var imie = input("Podaj imie: ")
 print(obj.some_function(imie))
 print(obj.some_parameter)
 print(obj2.some_parameter)
-
