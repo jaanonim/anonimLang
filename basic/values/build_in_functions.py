@@ -148,6 +148,93 @@ class BuiltInFunction(BaseFunction):
 
     execute_exit.arg_names = []
 
+    def execute_append(self, exec_context):
+        list_ = exec_context.symbol_table.get("list")
+        value = exec_context.symbol_table.get("value")
+
+        if not isinstance(list_, List):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "First argument must be list",
+                    exec_context,
+                )
+            )
+
+        list_.elements.append(value)
+        return RuntimeResult().success(Number.null)
+
+    execute_append.arg_names = ["list", "value"]
+
+    def execute_pop(self, exec_context):
+        list_ = exec_context.symbol_table.get("list")
+        index = exec_context.symbol_table.get("index")
+
+        if not isinstance(list_, List):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "First argument must be list",
+                    exec_context,
+                )
+            )
+
+        if not isinstance(index, Number):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "Second argument must be number",
+                    exec_context,
+                )
+            )
+
+        try:
+            element = list_.elements.pop(index.value)
+        except:
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "Element at this index could not be removed from list because index is out of bounds",
+                    exec_context,
+                )
+            )
+        return RuntimeResult().success(element)
+
+    execute_pop.arg_names = ["list", "index"]
+
+    def execute_extend(self, exec_context):
+        listA = exec_context.symbol_table.get("listA")
+        listB = exec_context.symbol_table.get("listB")
+
+        if not isinstance(listA, List):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "First argument must be list",
+                    exec_context,
+                )
+            )
+
+        if not isinstance(listB, List):
+            return RuntimeResult().failure(
+                RunTimeError(
+                    self.pos_start,
+                    self.pos_end,
+                    "Second argument must be list",
+                    exec_context,
+                )
+            )
+
+        listA.elements.extend(listB.elements)
+        return RuntimeResult().success(Number.null)
+
+    execute_extend.arg_names = ["listA", "listB"]
+
     def execute_len(self, exec_context):
         _list = exec_context.symbol_table.get("list")
 
@@ -220,5 +307,8 @@ BuiltInFunction.is_object = BuiltInFunction("is_object")
 BuiltInFunction.isset = BuiltInFunction("isset")
 BuiltInFunction.exit = BuiltInFunction("exit")
 BuiltInFunction.run = BuiltInFunction("run")
+BuiltInFunction.append = BuiltInFunction("append")
+BuiltInFunction.pop = BuiltInFunction("pop")
+BuiltInFunction.extend = BuiltInFunction("extend")
 BuiltInFunction.len = BuiltInFunction("len")
 BuiltInFunction.random = BuiltInFunction("random")
