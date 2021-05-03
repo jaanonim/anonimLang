@@ -58,7 +58,7 @@ def run_with_context(fn, text, context):
     l = Lexer(fn, text)
     t, e = l.make_tokens()
     if e:
-        return None, e
+        return None, e, None
 
     if debug:
         print(f"DEBUG: {t}")
